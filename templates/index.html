@@ -89,22 +89,43 @@
                 </div>
             </div>
             <script>
-                function getBotResponse() {
+                 function getBotResponse() {
+                    // Get user input
                     var rawText = $("#textInput").val();
+
+                    // Append user's message to the chatbox
                     var userHtml = '<p class="userText"><span>' + rawText + "</span></p>";
-                    $("#textInput").val("");
                     $("#chatbox").append(userHtml);
+                    $("#textInput").val("");
+
+                    // Smooth scroll to view
                     document
                         .getElementById("userInput")
                         .scrollIntoView({ block: "start", behavior: "smooth" });
-                    $.get("/get", { msg: rawText }).done(function (data) {
-                        var botHtml = '<p class="botText"><span>' + data + "</span></p>";
-                        $("#chatbox").append(botHtml);
-                        document
-                            .getElementById("userInput")
-                            .scrollIntoView({ block: "start", behavior: "smooth" });
+
+                    // Send the user message to the Flask server
+                    $.ajax({
+                        url: "/chat", // Ensure this matches your Flask endpoint
+                        type: "POST",
+                        contentType: "application/json",
+                        data: JSON.stringify({ message: rawText }),
+                        success: function (data) {
+                            // Append bot response to the chatbox
+                            var botHtml = '<p class="botText"><span>' + data.response + "</span></p>";
+                            $("#chatbox").append(botHtml);
+                            document
+                                .getElementById("userInput")
+                                .scrollIntoView({ block: "start", behavior: "smooth" });
+                        },
+                        error: function (xhr, status, error) {
+                            // Handle errors (optional)
+                            var errorHtml = '<p class="botText"><span>Error: Unable to get a response</span></p>';
+                            $("#chatbox").append(errorHtml);
+                        },
                     });
                 }
+
+                // Allow pressing Enter to send a message
                 $("#textInput").keypress(function (e) {
                     if (e.which == 13) {
                         getBotResponse();
