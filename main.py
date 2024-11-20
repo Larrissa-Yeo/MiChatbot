@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 from chatbot import Chat, register_call
 import os
 import random
+import re
 
 #app.py
 #import files
@@ -15,13 +16,28 @@ fallback_responses = [
 ]
 
 ## Using a sample response template
-chat_template = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Example.template")
-chat = Chat(chat_template)
+# chat_template = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Example.template")
+# chat = Chat(chat_template)
 
 @app.route("/")
 def home():
     
     return render_template("index.html")
+
+# Extract query from user message
+def extract_query(user_message):
+    patterns = [
+        r"what is (?P<query>.+)",
+        r"who is (?P<query>.+)",
+        r"tell me about (?P<query>.+)",
+        r"do you know about (?P<query>.+)",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, user_message, re.IGNORECASE)
+        if match:
+            return match.group("query").strip()
+    # If no pattern matches, return the original message
+    return user_message.strip()
 
 # Generic response generator
 def generate_generic_response(query):
@@ -36,13 +52,16 @@ def generate_generic_response(query):
 
 @app.route('/chat', methods=['POST'])
 def chat_with_bot():
-    user_message = request.json.get('message', "")
+    user_message = request.json.get('message', "").strip()
     if not user_message:
         return jsonify({"error": "Message is required"}), 400
 
     try:
+        # Extract the query from the user's message
+        query = extract_query(user_message)
+        
         # Get the chatbot's response
-        bot_response = generate_generic_response(user_message)
+        bot_response = generate_generic_response(query)
 
         # If no response is found, return a random fallback response
         if not bot_response:
