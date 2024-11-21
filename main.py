@@ -3,6 +3,7 @@ from chatbot import Chat, register_call
 import os
 import random
 import re
+import pandas as pd
 
 #app.py
 #import files
@@ -39,16 +40,69 @@ def extract_query(user_message):
     # If no pattern matches, return the original message
     return user_message.strip()
 
+data_csv = "updated_aptgroup_relationships (1).csv"
+
 # Generic response generator
 def generate_generic_response(query):
-    responses = [
-        f"I'm not sure about '{query}', but it sounds interesting!",
-        f"That's a great question about '{query}'. I'll need to think about it!",
-        f"I don't have enough information on '{query}', but I'd love to learn more.",
-        f"Hmm, I'm not sure about '{query}'. Could you tell me more?",
-        f"'{query}' is a fascinating topic. I'll try to find out more for next time!",
-    ]
-    return random.choice(responses)
+    try:
+        # Load the CSV file
+        data = pd.read_csv(data_csv)
+
+        # Define the columns to search for the query
+        search_columns = ["group ID", "group name", "technique ID", "technique name", 
+                          "group mapping description", "technique description", 
+                          "technique tactics", "technique platforms", 
+                          "is sub-technique of target", "target sub-technique of", 
+                          "technique supports remote"]
+
+        # Filter rows where the query matches any of the search columns (case-insensitive)
+        match = data[
+            data[search_columns].apply(
+                lambda row: any(row.astype(str).str.contains(query, case=False, na=False)), axis=1
+            )
+        ]
+
+        # If a match is found, format the response
+        if not match.empty:
+            result = match.iloc[0]  # Get the first match
+            response = (
+                f"**APT Group Information**\n"
+                f"-------------------------\n"
+                f"Group ID: {result['group ID']}\n"
+                f"Group Name: {result['group name']}\n\n"
+
+                f"**Technique Details**\n"
+                f"----------------------\n"
+                f"Technique ID: {result['technique ID']}\n"
+                f"Technique Name: {result['technique name']}\n"
+                f"Technique Description:\n{result['technique description']}\n\n"
+
+                f"**Additional Information**\n"
+                f"---------------------------\n"
+                f"Group Mapping Description: {result['group mapping description']}\n"
+                f"Technique Tactics: {result['technique tactics']}\n"
+                f"Technique Platforms: {result['technique platforms']}\n"
+                f"Is Sub-Technique of Target: {result['is sub-technique of target']}\n"
+                f"Target Sub-Technique Of: {result['target sub-technique of']}\n"
+                f"Technique Supports Remote: {result['technique supports remote']}\n"
+        )
+
+            return response
+
+        # If no match is found, return a generic message
+        return f"Sorry, I couldn't find information about '{query}'."
+
+    except Exception as e:
+        return f"An error occurred while processing your query: {str(e)}"
+    ### generic old code from here
+    # responses = [
+    #     f"I'm not sure about '{query}', but it sounds interesting!",
+    #     f"That's a great question about '{query}'. I'll need to think about it!",
+    #     f"I don't have enough information on '{query}', but I'd love to learn more.",
+    #     f"Hmm, I'm not sure about '{query}'. Could you tell me more?",
+    #     f"'{query}' is a fascinating topic. I'll try to find out more for next time!",
+    # ]
+    # return random.choice(responses)
 
 @app.route('/chat', methods=['POST'])
 def chat_with_bot():
