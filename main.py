@@ -53,11 +53,51 @@ def extract_query(user_message):
         match = re.search(pattern, user_message, re.IGNORECASE)
         if match:
             return match.group("query").strip()
+    
+    ### Michelle's Extract Query codes
+    # technique_id_pattern = r"\b(T\d{4})\b"
+    # technique_name_pattern = r"describe (?P<technique_name>.+)"
+
+    # if match := re.search(technique_id_pattern, user_message, re.IGNORECASE):
+    #     return {"type": "technique_id", "query": match.group(1)}
+
+    # if match := re.search(technique_name_pattern, user_message, re.IGNORECASE):
+    #     return {"type": "technique_name", "query": match.group("technique_name").strip()}
+
+    # return {"type": "unknown", "query": user_message.strip()}
     # If no pattern matches, return the original message
     return user_message.strip()
 
 data_csv = "updated_aptgroup_relationships.csv"
 
+# ## Michelle generic response
+# def generate_generic_response(query_info):
+#     try:
+#         # Load the CSV file
+#         data = pd.read_csv(data_csv)
+
+#         # Define the columns to search
+#         search_columns = ["technique ID", "technique name", "group name", "technique description"]
+
+#         if query_info["type"] == "technique_id":
+#             # Search by technique ID
+#             match = data[data["technique ID"].str.contains(query_info["query"], case=False, na=False)]
+#             if not match.empty:
+#                 result = match.iloc[0]
+#                 return f"{result['technique ID']} is {result['technique name']} used by {result['group name']}."
+
+#         elif query_info["type"] == "technique_name":
+#             # Search by technique name
+#             match = data[data["technique name"].str.contains(query_info["query"], case=False, na=False)]
+#             if not match.empty:
+#                 result = match.iloc[0]
+#                 return f"{result['technique description']}"
+
+#         # If no match is found
+#         return f"Sorry, I couldn't find information about '{query_info['query']}'."
+
+#     except Exception as e:
+#         return f"An error occurred while processing your query: {str(e)}"
 
 # Generic response generator
 def generate_generic_response(query, searchCata):
@@ -81,13 +121,6 @@ def generate_generic_response(query, searchCata):
                 lambda row: any(row.astype(str).str.contains(query, case=False, na=False)), axis=1
             )
         ]    
-
-        # Filter rows where the query matches any of the search columns (case-insensitive)
-        # match = data[
-        #     data[search_columns].apply(
-        #         lambda row: any(row.astype(str).str.contains(query, case=False, na=False)), axis=1
-        #     )
-        # ]
 
         # If a match is found, format the response
         if not match.empty:
@@ -144,15 +177,6 @@ def generate_generic_response(query, searchCata):
 
     except Exception as e:
         return f"An error occurred while processing your query: {str(e)}"
-    ### generic old code from here
-    # responses = [
-    #     f"I'm not sure about '{query}', but it sounds interesting!",
-    #     f"That's a great question about '{query}'. I'll need to think about it!",
-    #     f"I don't have enough information on '{query}', but I'd love to learn more.",
-    #     f"Hmm, I'm not sure about '{query}'. Could you tell me more?",
-    #     f"'{query}' is a fascinating topic. I'll try to find out more for next time!",
-    # ]
-    # return random.choice(responses)
 
 @app.route('/chat', methods=['POST'])
 def chat_with_bot():
