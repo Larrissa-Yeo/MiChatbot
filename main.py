@@ -25,10 +25,21 @@ def home():
     
     return render_template("index.html")
 
+tatics = {"TA0043":"Reconnaissance"}
+
 def queryFilter(query):
     if query[0] == "T" and (len(query)>4 and len(query)<10):
         searchCata = "technique ID"
         return searchCata
+    elif query[0:3] == "APT" and query[3] == '-':
+        searchCata = "group name"
+        return searchCata
+    elif query[0] == "G" and len(query) < 6:
+        searchCata = "group ID"
+        return searchCata
+    else:
+        return
+        
 
 # Extract query from user message
 def extract_query(user_message):
@@ -47,6 +58,7 @@ def extract_query(user_message):
 
 data_csv = "updated_aptgroup_relationships.csv"
 
+
 # Generic response generator
 def generate_generic_response(query, searchCata):
     try:
@@ -61,15 +73,14 @@ def generate_generic_response(query, searchCata):
                           "technique supports remote"]
         
         if searchCata != None:
+            print(searchCata)
             search_columns = search_columns
     
         match = data[
             data[search_columns].apply(
                 lambda row: any(row.astype(str).str.contains(query, case=False, na=False)), axis=1
             )
-        ]
-
-            
+        ]    
 
         # Filter rows where the query matches any of the search columns (case-insensitive)
         # match = data[
@@ -81,29 +92,52 @@ def generate_generic_response(query, searchCata):
         # If a match is found, format the response
         if not match.empty:
             result = match.iloc[0]  # Get the first match
-            response = (
-                f"**APT Group Information**\n"
-                f"-------------------------\n"
-                f"Group ID: {result['group ID']}\n"
-                f"Group Name: {result['group name']}\n\n"
+            if searchCata == "technique ID":
+                response = (
 
-                f"**Technique Details**\n"
-                f"----------------------\n"
-                f"Technique ID: {result['technique ID']}\n"
-                f"Technique Name: {result['technique name']}\n"
-                f"Technique Description:\n{result['technique description']}\n\n"
+                f"**Technique Details**<br>"
+                f"----------------------<br>"
+                f"Technique ID: {result['technique ID']}<br>"
+                f"Technique Name: {result['technique name']}<br>"
+                f"Technique Description:<br>{result['technique description']}<br><br>"
 
-                f"**Additional Information**\n"
-                f"---------------------------\n"
-                f"Group Mapping Description: {result['group mapping description']}\n"
-                f"Technique Tactics: {result['technique tactics']}\n"
-                f"Technique Platforms: {result['technique platforms']}\n"
-                f"Is Sub-Technique of Target: {result['is sub-technique of target']}\n"
-                f"Target Sub-Technique Of: {result['target sub-technique of']}\n"
-                f"Technique Supports Remote: {result['technique supports remote']}\n"
-        )
+                f"**APT Group Information**<br>"
+                f"-------------------------<br>"
+                f"Group ID: {result['group ID']}<br>"
+                f"Group Name: {result['group name']}<br><br>"
 
-            return response
+                f"**Additional Information**<br>"
+                f"---------------------------<br>" 
+                f"Group Mapping Description: {result['group mapping description']}<br>"
+                f"Technique Tactics: {result['technique tactics']}<br>"
+                f"Technique Platforms: {result['technique platforms']}<br>"
+                f"Is Sub-Technique of Target: {result['is sub-technique of target']}<br>"
+                f"Target Sub-Technique Of: {result['target sub-technique of']}<br>"
+                f"Technique Supports Remote: {result['technique supports remote']}<br>"
+                )
+
+                return response
+            elif searchCata == "group name" | search_columns == "group ID":
+                response = (
+
+                f"**APT Group Information**<br>"
+                f"-------------------------<br>"
+                f"Group ID: {result['group ID']}<br>"
+                f"Group Name: {result['group name']}<br><br>"
+
+                f"---------------------------<br>" 
+                f"Group Mapping Description: {result['group mapping description']}<br>"
+                f"Technique Tactics: {result['technique tactics']}<br>"
+                f"Technique Platforms: {result['technique platforms']}<br>"
+                f"Is Sub-Technique of Target: {result['is sub-technique of target']}<br>"
+                f"Target Sub-Technique Of: {result['target sub-technique of']}<br>"
+                f"Technique Supports Remote: {result['technique supports remote']}<br>"
+                )
+
+                return response
+            elif searchCata == "group name":
+                return
+
 
         # If no match is found, return a generic message
         return f"Sorry, I couldn't find information about '{query}'."
