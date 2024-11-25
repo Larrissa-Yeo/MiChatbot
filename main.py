@@ -25,6 +25,11 @@ def home():
     
     return render_template("index.html")
 
+def queryFilter(query):
+    if query[0] == "T" and (len(query)>4 and len(query)<10):
+        searchCata = "technique ID"
+        return searchCata
+
 # Extract query from user message
 def extract_query(user_message):
     patterns = [
@@ -40,10 +45,10 @@ def extract_query(user_message):
     # If no pattern matches, return the original message
     return user_message.strip()
 
-data_csv = "updated_aptgroup_relationships (1).csv"
+data_csv = "updated_aptgroup_relationships.csv"
 
 # Generic response generator
-def generate_generic_response(query):
+def generate_generic_response(query, searchCata):
     try:
         # Load the CSV file
         data = pd.read_csv(data_csv)
@@ -54,13 +59,24 @@ def generate_generic_response(query):
                           "technique tactics", "technique platforms", 
                           "is sub-technique of target", "target sub-technique of", 
                           "technique supports remote"]
-
-        # Filter rows where the query matches any of the search columns (case-insensitive)
+        
+        if searchCata != None:
+            search_columns = search_columns
+    
         match = data[
             data[search_columns].apply(
                 lambda row: any(row.astype(str).str.contains(query, case=False, na=False)), axis=1
             )
         ]
+
+            
+
+        # Filter rows where the query matches any of the search columns (case-insensitive)
+        # match = data[
+        #     data[search_columns].apply(
+        #         lambda row: any(row.astype(str).str.contains(query, case=False, na=False)), axis=1
+        #     )
+        # ]
 
         # If a match is found, format the response
         if not match.empty:
@@ -113,9 +129,11 @@ def chat_with_bot():
     try:
         # Extract the query from the user's message
         query = extract_query(user_message)
+
+        searchCata = queryFilter(query)
         
         # Get the chatbot's response
-        bot_response = generate_generic_response(query)
+        bot_response = generate_generic_response(query, searchCata)
 
         # If no response is found, return a random fallback response
         if not bot_response:
