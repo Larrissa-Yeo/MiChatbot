@@ -59,7 +59,8 @@ def queryFilter(query):
             if tatic['Name'] == query:
                 searchCata = "technique tactics"
                 return searchCata
-        return
+        searchCata = "technique name"
+        return searchCata
         
 
 # Extract query from user message
@@ -200,6 +201,28 @@ def generate_generic_response(query, searchCata):
                         )
 
                         return response
+            elif searchCata == "technique name":
+                response = (
+
+                    f"Technique ID: {result['technique ID']}<br>"
+                    f"Technique Name: {result['technique name']}<br><br>"
+                    f"Technique Description:<br>{result['technique description']}<br><br>"
+
+                    f"**APT Group Information**<br>"
+                    f"-------------------------<br>"
+                    f"Group ID: {result['group ID']}<br>"
+                    f"Group Name: {result['group name']}<br><br>"
+
+                    f"**Additional Information**<br>"
+                    f"---------------------------<br>"
+                    f"Group Mapping Description: {result['group mapping description']}<br>"
+                    f"Technique Tactics: {result['technique tactics']}<br>"
+                    f"Technique Platforms: {result['technique platforms']}<br>"
+                    f"Is Sub-Technique of Target: {result['is sub-technique of target']}<br>"
+                    f"Target Sub-Technique Of: {result['target sub-technique of']}<br>"
+                    f"Technique Supports Remote: {result['technique supports remote']}<br>" 
+                )
+                return response
 
 
 
