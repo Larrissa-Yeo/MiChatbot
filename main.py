@@ -25,10 +25,27 @@ def home():
     
     return render_template("index.html")
 
-tatics = {"TA0043":"Reconnaissance"}
+tatics = [{"ID":"TA0043","Name":"Reconnaissance", "Description":"The adversary is trying to gather information they can use to plan future operations."},
+          {"ID":"TA0042", "Name":"Resource Development", "Description":"The adversary is trying to establish resources they can use to support operations."},
+          {"ID":"TA0001", "Name":"Initial Access", "Description":"The adversary is trying to get into your network."},
+          {"ID":"TA0002", "Name":"Execution", "Description":"The adversary is trying to run malicious code."},
+          {"ID":"TA0003", "Name":"Persistence", "Description":"The adversary is trying to maintain their foothold."},
+          {"ID":"TA0004", "Name":"Privilege Escalation", "Description":"The adversary is trying to gain higher-level permissions."},
+          {"ID":"TA0005", "Name":"Defense Evasion", "Description":"The adversary is trying to avoid being detected."},
+          {"ID":"TA0006", "Name":"Credential Access", "Description":"The adversary is trying to steal account names and passwords."},
+          {"ID":"TA0007", "Name":"Discovery", "Description":"The adversary is trying to figure out your environment."},
+          {"ID":"TA0008", "Name":"Lateral Movement", "Description":"The adversary is trying to move through your environment."},
+          {"ID":"TA0009", "Name":"Collection", "Description":"The adversary is trying to gather data of interest to their goal."},
+          {"ID":"TA0011", "Name":"Command and Control", "Description":"The adversary is trying to communicate with compromised systems to control them."},
+          {"ID":"TA0010", "Name":"Exfiltration", "Description":"The adversary is trying to steal data."},
+          {"ID":"TA0040", "Name":"Impact", "Description":"The adversary is trying to manipulate, interrupt, or destroy your systems and data."}
+          ]
 
 def queryFilter(query):
-    if query[0] == "T" and (len(query)>4 and len(query)<10):
+    if query[0:2] == "TA" and (len(query)>4 and len(query)<8):
+        searchCata = "technique tactics"
+        return searchCata
+    elif query[0] == "T" and (len(query)>4 and len(query)<10):
         searchCata = "technique ID"
         return searchCata
     elif query[0:3] == "APT" and query[3] == '-':
@@ -38,6 +55,10 @@ def queryFilter(query):
         searchCata = "group ID"
         return searchCata
     else:
+        for tatic in tatics:
+            if tatic['Name'] == query:
+                searchCata = "technique tactics"
+                return searchCata
         return
         
 
@@ -111,7 +132,7 @@ def generate_generic_response(query, searchCata):
                           "technique tactics", "technique platforms", 
                           "is sub-technique of target", "target sub-technique of", 
                           "technique supports remote"]
-        
+        print(searchCata)
         if searchCata != None:
             print(searchCata)
             search_columns = search_columns
@@ -150,7 +171,7 @@ def generate_generic_response(query, searchCata):
                 )
 
                 return response
-            elif searchCata == "group name" | search_columns == "group ID":
+            elif searchCata == "group name" or search_columns == "group ID":
                 response = (
 
                 f"**APT Group Information**<br>"
@@ -168,8 +189,18 @@ def generate_generic_response(query, searchCata):
                 )
 
                 return response
-            elif searchCata == "group name":
-                return
+            elif searchCata == "technique tactics":
+                for tatic in tatics:
+                    print(tatic)
+                    if tatic["ID"] == query or tatic['Name'] == query:
+                        response = (
+                        f"Tatic: {tatic['Name']}<br>"
+                        f"Tatic ID: {tatic['ID']}<br>"
+                        f"Tatic Description: {tatic['Description']}<br>"
+                        )
+
+                        return response
+
 
 
         # If no match is found, return a generic message
