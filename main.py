@@ -22,7 +22,7 @@ def home():
     
     return render_template("index.html")
 
-tatics = [{"ID":"TA0043","Name":"Reconnaissance", "Description":"The adversary is trying to gather information they can use to plan future operations."},
+tactics = [{"ID":"TA0043","Name":"Reconnaissance", "Description":"The adversary is trying to gather information they can use to plan future operations."},
           {"ID":"TA0042", "Name":"Resource Development", "Description":"The adversary is trying to establish resources they can use to support operations."},
           {"ID":"TA0001", "Name":"Initial Access", "Description":"The adversary is trying to get into your network."},
           {"ID":"TA0002", "Name":"Execution", "Description":"The adversary is trying to run malicious code."},
@@ -53,8 +53,8 @@ def queryFilter(query):
         searchCata = "group ID"
         return searchCata
     else:
-        for tatic in tatics:
-            if tatic['Name'] == query:
+        for tactic in tactics:
+            if tactic['Name'] == query:
                 searchCata = "technique tactics"
                 return searchCata
         searchCata = "technique name"
@@ -144,13 +144,13 @@ def generate_response(query, searchCata):
                 )
                 return response
             elif searchCata == "technique tactics":
-                for tatic in tatics:
-                    print(tatic)
-                    if tatic["ID"] == query or tatic['Name'] == query:
+                for tactic in tactics:
+                    print(tactic)
+                    if tactic["ID"] == query or tactic['Name'] == query:
                         response = (
-                        f"Tatic: {tatic['Name']}<br>"
-                        f"Tatic ID: {tatic['ID']}<br>"
-                        f"Tatic Description: {tatic['Description']}<br>"
+                        f"tactic: {tactic['Name']}<br>"
+                        f"tactic ID: {tactic['ID']}<br>"
+                        f"tactic Description: {tactic['Description']}<br>"
                         )
                         return response
             elif searchCata == "technique name":
