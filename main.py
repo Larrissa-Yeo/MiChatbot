@@ -16,9 +16,6 @@ fallback_responses = [
     "Hmm, I don't know about that. Can you ask something else?",
 ]
 
-## Using a sample response template
-# chat_template = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Example.template")
-# chat = Chat(chat_template)
 
 @app.route("/")
 def home():
@@ -41,6 +38,7 @@ tatics = [{"ID":"TA0043","Name":"Reconnaissance", "Description":"The adversary i
           {"ID":"TA0040", "Name":"Impact", "Description":"The adversary is trying to manipulate, interrupt, or destroy your systems and data."}
           ]
 
+# Identifying the column its querying for
 def queryFilter(query):
     if query[0:2] == "TA" and (len(query)>4 and len(query)<8):
         searchCata = "technique tactics"
@@ -75,54 +73,11 @@ def extract_query(user_message):
         match = re.search(pattern, user_message, re.IGNORECASE)
         if match:
             return match.group("query").strip()
-    
-    ### Michelle's Extract Query codes
-    # technique_id_pattern = r"\b(T\d{4})\b"
-    # technique_name_pattern = r"describe (?P<technique_name>.+)"
-
-    # if match := re.search(technique_id_pattern, user_message, re.IGNORECASE):
-    #     return {"type": "technique_id", "query": match.group(1)}
-
-    # if match := re.search(technique_name_pattern, user_message, re.IGNORECASE):
-    #     return {"type": "technique_name", "query": match.group("technique_name").strip()}
-
-    # return {"type": "unknown", "query": user_message.strip()}
-    # If no pattern matches, return the original message
     return user_message.strip()
 
 data_csv = "updated_aptgroup_relationships.csv"
 
-# ## Michelle generic response
-# def generate_generic_response(query_info):
-#     try:
-#         # Load the CSV file
-#         data = pd.read_csv(data_csv)
-
-#         # Define the columns to search
-#         search_columns = ["technique ID", "technique name", "group name", "technique description"]
-
-#         if query_info["type"] == "technique_id":
-#             # Search by technique ID
-#             match = data[data["technique ID"].str.contains(query_info["query"], case=False, na=False)]
-#             if not match.empty:
-#                 result = match.iloc[0]
-#                 return f"{result['technique ID']} is {result['technique name']} used by {result['group name']}."
-
-#         elif query_info["type"] == "technique_name":
-#             # Search by technique name
-#             match = data[data["technique name"].str.contains(query_info["query"], case=False, na=False)]
-#             if not match.empty:
-#                 result = match.iloc[0]
-#                 return f"{result['technique description']}"
-
-#         # If no match is found
-#         return f"Sorry, I couldn't find information about '{query_info['query']}'."
-
-#     except Exception as e:
-#         return f"An error occurred while processing your query: {str(e)}"
-
-# Generic response generator
-def generate_generic_response(query, searchCata):
+def generate_response(query, searchCata):
     try:
         # Load the CSV file
         data = pd.read_csv(data_csv)
@@ -170,7 +125,6 @@ def generate_generic_response(query, searchCata):
                 f"Target Sub-Technique Of: {result['target sub-technique of']}<br>"
                 f"Technique Supports Remote: {result['technique supports remote']}<br>"
                 )
-
                 return response
             elif searchCata == "group name" or search_columns == "group ID":
                 response = (
@@ -188,7 +142,6 @@ def generate_generic_response(query, searchCata):
                 f"Target Sub-Technique Of: {result['target sub-technique of']}<br>"
                 f"Technique Supports Remote: {result['technique supports remote']}<br>"
                 )
-
                 return response
             elif searchCata == "technique tactics":
                 for tatic in tatics:
@@ -199,11 +152,9 @@ def generate_generic_response(query, searchCata):
                         f"Tatic ID: {tatic['ID']}<br>"
                         f"Tatic Description: {tatic['Description']}<br>"
                         )
-
                         return response
             elif searchCata == "technique name":
                 response = (
-
                     f"Technique ID: {result['technique ID']}<br>"
                     f"Technique Name: {result['technique name']}<br><br>"
                     f"Technique Description:<br>{result['technique description']}<br><br>"
@@ -223,9 +174,6 @@ def generate_generic_response(query, searchCata):
                     f"Technique Supports Remote: {result['technique supports remote']}<br>" 
                 )
                 return response
-
-
-
         # If no match is found, return a generic message
         return f"Sorry, I couldn't find information about '{query}'."
 
@@ -245,7 +193,7 @@ def chat_with_bot():
         searchCata = queryFilter(query)
         
         # Get the chatbot's response
-        bot_response = generate_generic_response(query, searchCata)
+        bot_response = generate_response(query, searchCata)
 
         # If no response is found, return a random fallback response
         if not bot_response:

@@ -1,4 +1,0 @@
-{% block %}
-    {% client %}(Do you know about|what is|who is|tell me about) (?P<query>.*){% endclient %}
-    {% response %}I'm not sure about "{{ query }}", but feel free to ask me something else!{% endresponse %}
-{% endblock %}
