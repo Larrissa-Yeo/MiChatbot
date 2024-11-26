@@ -3,6 +3,12 @@ Maintaining efficient incident response plans becomes more difficult for corpora
 
 In order to fill these gaps, we have created an AI-powered chatbot named **MiAtbot** that provides users with real-time, structured guidance that is based on industry standards, enhanced with the most recent threat data from MITRE ATT&CK ™ Framework, and customized to meet their individual needs.
 
+# Implementation Platform and Language
+1. Google colab
+2. Python
+3. Scikit-learn
+4. Imbalanced-learn
+
 # Getting Started
 1. Clone this repository
 2. Download the necessary libraries needed by running `pip install -r requirements.txt`
@@ -17,4 +23,4 @@ In order to fill these gaps, we have created an AI-powered chatbot named **MiAtb
 2. Proceed to ask the chatbot about the following queries available:
     - What is the `Techniques ID` or `Techniques Name`?
     - What is the `Group ID` or `Group Name`?
-    - What is `Tactics`?
+    - What is the `Tactics`?
