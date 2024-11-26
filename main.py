@@ -75,7 +75,7 @@ def extract_query(user_message):
             return match.group("query").strip()
     return user_message.strip()
 
-data_csv = "updated_aptgroup_relationships.csv"
+data_csv = "/content/updated_aptgroup_relationships.csv" # Replace with your file path
 
 def generate_response(query, searchCata):
     try:
@@ -126,7 +126,7 @@ def generate_response(query, searchCata):
                 f"Technique Supports Remote: {result['technique supports remote']}<br>"
                 )
                 return response
-            elif searchCata == "group name" or search_columns == "group ID":
+            elif searchCata == "group name" or searchCata == "group ID":
                 response = (
 
                 f"**APT Group Information**<br>"
